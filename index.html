@@ -35,7 +35,7 @@
             color: #f0f0f0;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
-        input {
+        select, input {
             width: 100%;
             padding: 15px;
             margin-bottom: 20px;
@@ -46,6 +46,14 @@
             font-size: 18px;
             box-sizing: border-box;
             outline: none;
+        }
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: #444;
+            padding-right: 30px; /* Extra utrymme för att undvika att täcka med pilar */
+            cursor: pointer;
         }
         button {
             font-size: 16px;
@@ -93,20 +101,15 @@
             const cansPerTray = 24;
             const requiredTrays = Math.ceil(totalCans / cansPerTray);
 
-            const maxTraysPerLoad = 1350;
-            const additionalTrays = requiredTrays > maxTraysPerLoad ? requiredTrays - maxTraysPerLoad : 0;
-
             document.getElementById("result").innerHTML = `
-                Totalt antal burkar: ${Math.round(totalCans)}<br>
-                Totalt antal tråg som behövs: ${requiredTrays}<br>
-                Extra tråg behövs efter första laddningen: ${additionalTrays > 0 ? additionalTrays : 'Inga extra tråg behövs'}
+                Totalt antal tråg som behövs: ${requiredTrays}
             `;
         }
     </script>
 </head>
 <body>
     <div class="container">
-        <h1 class="header">Beräkna Burkar och Tråg</h1>
+        <h1 class="header">Beräkna antal tråg kvar</h1>
 
         <label for="canSize">Välj burkstorlek:</label>
         <select id="canSize">
