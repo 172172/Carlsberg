@@ -4,32 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Burk- och Trågberäkning</title>
+    <style>
+        body {
+            font-family: 'Arial, sans-serif';
+            font-size: 16px;
+            line-height: 1.6;
+            background-color: #1f1f1f;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            padding: 30px;
+            background-color: #222;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        .header {
+            font-size: 30px;
+            font-weight: bold;
+            font-family: 'Montserrat, sans-serif';
+            margin-bottom: 20px;
+            color: #f0f0f0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+        input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #888;
+            border-radius: 5px;
+            background-color: transparent;
+            color: #ccc;
+            font-size: 18px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        button {
+            font-size: 16px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            background-color: #006400;
+            color: #fff;
+            width: 100%;
+            margin-bottom: 20px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background-color: #228B22;
+        }
+        .response {
+            font-size: 20px;
+            margin-top: 20px;
+            color: #ccc;
+        }
+        .footer {
+            margin-top: 40px;
+        }
+        .signature {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ccc;
+            text-transform: uppercase;
+        }
+    </style>
     <script>
         function calculateTrays() {
-            // Hämtar burkstorlek och tillhörande värden
             const canSize = document.getElementById("canSize").value;
             let cansPerPallet = 0;
             let hlPerLine = 0;
 
             if (canSize === "50cl") {
                 cansPerPallet = 5865;
-                hlPerLine = 55; // 50cl linje
+                hlPerLine = 55;
             } else if (canSize === "33cl") {
                 cansPerPallet = 8602;
-                hlPerLine = 36; // 33cl linje
+                hlPerLine = 36;
             } else if (canSize === "sleek") {
                 cansPerPallet = 8602;
-                hlPerLine = 44; // Sleek linje
+                hlPerLine = 44;
             }
 
             const pallets = parseInt(document.getElementById("pallets").value) || 0;
-            const lineCans = hlPerLine * 100 / (parseFloat(canSize) / 100); // Antal burkar på banan
+            const lineCans = hlPerLine * 100 / (parseFloat(canSize) / 100); 
             const totalCans = (pallets * cansPerPallet) + lineCans;
 
-            const cansPerTray = 24; // Antal burkar per tråg
+            const cansPerTray = 24;
             const requiredTrays = Math.ceil(totalCans / cansPerTray);
 
-            // Max tråg per lastning
             const maxTraysPerLoad = 1350;
             const additionalTrays = requiredTrays > maxTraysPerLoad ? requiredTrays - maxTraysPerLoad : 0;
 
@@ -42,21 +114,27 @@
     </script>
 </head>
 <body>
-    <h1>Beräkna Burkar och Tråg</h1>
+    <div class="container">
+        <h1 class="header">Beräkna Burkar och Tråg</h1>
 
-    <label for="canSize">Välj burkstorlek:</label>
-    <select id="canSize">
-        <option value="50cl">50 cl</option>
-        <option value="33cl">33 cl</option>
-        <option value="sleek">Sleek (33 cl)</option>
-    </select><br><br>
+        <label for="canSize">Välj burkstorlek:</label>
+        <select id="canSize">
+            <option value="50cl">50 cl</option>
+            <option value="33cl">33 cl</option>
+            <option value="sleek">Sleek (33 cl)</option>
+        </select><br><br>
 
-    <label for="pallets">Antal pallar:</label>
-    <input type="number" id="pallets" placeholder="Skriv antal pallar"><br><br>
+        <label for="pallets">Antal pallar:</label>
+        <input type="number" id="pallets" placeholder="Skriv antal pallar"><br><br>
 
-    <button onclick="calculateTrays()">Beräkna</button>
+        <button onclick="calculateTrays()">Beräkna</button>
 
-    <h2>Resultat:</h2>
-    <div id="result"></div>
+        <h2>Resultat:</h2>
+        <div id="result" class="response"></div>
+
+        <div class="footer">
+            <p class="signature">Din Beräkningsassistent</p>
+        </div>
+    </div>
 </body>
 </html>
