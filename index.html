@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burk- och Trågberäkning</title>
+    <script>
+        function calculateTrays() {
+            // Hämtar burkstorlek och tillhörande värden
+            const canSize = document.getElementById("canSize").value;
+            let cansPerPallet = 0;
+            let hlPerLine = 0;
+
+            if (canSize === "50cl") {
+                cansPerPallet = 5865;
+                hlPerLine = 55; // 50cl linje
+            } else if (canSize === "33cl") {
+                cansPerPallet = 8602;
+                hlPerLine = 36; // 33cl linje
+            } else if (canSize === "sleek") {
+                cansPerPallet = 8602;
+                hlPerLine = 44; // Sleek linje
+            }
+
+            const pallets = parseInt(document.getElementById("pallets").value) || 0;
+            const lineCans = hlPerLine * 100 / (parseFloat(canSize) / 100); // Antal burkar på banan
+            const totalCans = (pallets * cansPerPallet) + lineCans;
+
+            const cansPerTray = 24; // Antal burkar per tråg
+            const requiredTrays = Math.ceil(totalCans / cansPerTray);
+
+            // Max tråg per lastning
+            const maxTraysPerLoad = 1350;
+            const additionalTrays = requiredTrays > maxTraysPerLoad ? requiredTrays - maxTraysPerLoad : 0;
+
+            document.getElementById("result").innerHTML = `
+                Totalt antal burkar: ${Math.round(totalCans)}<br>
+                Totalt antal tråg som behövs: ${requiredTrays}<br>
+                Extra tråg behövs efter första laddningen: ${additionalTrays > 0 ? additionalTrays : 'Inga extra tråg behövs'}
+            `;
+        }
+    </script>
+</head>
+<body>
+    <h1>Beräkna Burkar och Tråg</h1>
+
+    <label for="canSize">Välj burkstorlek:</label>
+    <select id="canSize">
+        <option value="50cl">50 cl</option>
+        <option value="33cl">33 cl</option>
+        <option value="sleek">Sleek (33 cl)</option>
+    </select><br><br>
+
+    <label for="pallets">Antal pallar:</label>
+    <input type="number" id="pallets" placeholder="Skriv antal pallar"><br><br>
+
+    <button onclick="calculateTrays()">Beräkna</button>
+
+    <h2>Resultat:</h2>
+    <div id="result"></div>
+</body>
+</html>
