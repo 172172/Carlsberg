@@ -1,15 +1,18 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Burk- och Trågberäkning</title>
+    <title>Beräkna Antal Tråg</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
         body {
-            font-family: 'Arial, sans-serif';
+            font-family: 'Roboto', sans-serif;
             font-size: 16px;
             line-height: 1.6;
-            background-color: #1f1f1f;
+            background-color: #0e0e0e;
             color: #fff;
             margin: 0;
             padding: 0;
@@ -18,110 +21,208 @@
             justify-content: center;
             align-items: center;
         }
+
         .container {
             max-width: 700px;
             width: 100%;
             padding: 30px;
-            background-color: #222;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            background-color: #1c1c1c;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
             text-align: center;
+            animation: fadeIn 1s ease-out;
         }
+
         .header {
-            font-size: 30px;
-            font-weight: bold;
-            font-family: 'Montserrat, sans-serif';
-            margin-bottom: 20px;
-            color: #f0f0f0;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            font-size: 32px;
+            font-weight: 700;
+            font-family: 'Roboto', sans-serif;
+            margin-bottom: 30px;
+            color: #f5f5f5;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
         }
+
         select, input {
             width: 100%;
             padding: 15px;
             margin-bottom: 20px;
-            border: 1px solid #888;
-            border-radius: 5px;
-            background-color: transparent;
+            border: none;
+            border-radius: 8px;
+            background-color: #333;
             color: #ccc;
             font-size: 18px;
             box-sizing: border-box;
             outline: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        select {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
+
+        select:hover, input:hover {
             background-color: #444;
-            padding-right: 30px; /* Extra utrymme för att undvika att täcka med pilar */
-            cursor: pointer;
+            color: #fff;
         }
-        button {
-            font-size: 16px;
+
+        .pallet-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .pallet-buttons button {
+            width: 48%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            background-color: #006400;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .pallet-buttons button:hover {
+            background-color: #228B22;
+        }
+
+        button.calculate {
+            font-size: 18px;
+            font-weight: 500;
             padding: 15px 30px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s ease;
             background-color: #006400;
             color: #fff;
             width: 100%;
             margin-bottom: 20px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
         }
-        button:hover {
+
+        button.calculate:hover {
             background-color: #228B22;
         }
+
         .response {
-            font-size: 20px;
-            margin-top: 20px;
-            color: #ccc;
+            font-size: 22px;
+            margin-top: 30px;
+            color: #f5f5f5;
+            font-weight: 500;
+            background-color: #2b2b2b;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .show-result {
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
     <script>
+        let pallets = 1; // Default antal pallar
+
+        function setPallets(value) {
+            pallets = value;
+            document.getElementById("selected-pallets").innerText = `Valda pallar: ${pallets}`;
+        }
+
+        function roundToNearestMultiple(value, multiple) {
+            return Math.ceil(value / multiple) * multiple;
+        }
+
         function calculateTrays() {
             const canSize = document.getElementById("canSize").value;
-            let cansPerPallet = 0;
-            let hlPerLine = 0;
+            const trayType = document.getElementById("trayType").value;
+            const fillLevel = document.getElementById("fillLevel").value;
 
-            if (canSize === "50cl") {
-                cansPerPallet = 5865;
-                hlPerLine = 55;
-            } else if (canSize === "33cl") {
-                cansPerPallet = 8602;
-                hlPerLine = 36;
+            let cansPerPallet = 0;
+            let cansOnLine = 0;
+            let accumulationCapacity = 0;
+            let cansAfterTap = 0;
+
+            // Definiera burkmängder baserat på burktyp
+            if (canSize === "50cl" || canSize === "33cl") {
+                cansPerPallet = canSize === "50cl" ? 5865 : 8602;
+                cansOnLine = 11000;
+                accumulationCapacity = 7017; // Ackumuleringsbord fullt för 33cl/50cl
+                cansAfterTap = 7575; // 14592 - 7017
             } else if (canSize === "sleek") {
                 cansPerPallet = 8602;
-                hlPerLine = 44;
+                cansOnLine = 13000;
+                accumulationCapacity = 9091; // Ackumuleringsbord fullt för sleek
+                cansAfterTap = 5501; // 14592 - 9091
             }
 
-            const pallets = parseInt(document.getElementById("pallets").value) || 0;
-            const lineCans = hlPerLine * 100 / (parseFloat(canSize) / 100); 
-            const totalCans = (pallets * cansPerPallet) + lineCans;
+            // Beräkna ackumuleringsbordets fyllnad baserat på procent (20%, 50%, 100%)
+            let filledCansOnAccumulationTable = 0;
+            if (fillLevel === "20%") {
+                filledCansOnAccumulationTable = 0.2 * accumulationCapacity;
+            } else if (fillLevel === "50%") {
+                filledCansOnAccumulationTable = 0.5 * accumulationCapacity;
+            } else if (fillLevel === "100%") {
+                filledCansOnAccumulationTable = 1 * accumulationCapacity;
+            }
 
-            const cansPerTray = 24;
-            const requiredTrays = Math.ceil(totalCans / cansPerTray);
+            // Total burkmängd
+            const totalCans = filledCansOnAccumulationTable + cansOnLine + cansAfterTap + (pallets * cansPerPallet);
 
-            document.getElementById("result").innerHTML = `
-                Totalt antal tråg som behövs: ${requiredTrays}
-            `;
+            // Välj typ av tråg
+            const cansPerTray = trayType === "24pack" ? 24 : 20;
+
+            // Beräkna antal tråg
+            let requiredTrays = Math.ceil(totalCans / cansPerTray);
+
+            // Avrunda till närmaste 50
+            requiredTrays = roundToNearestMultiple(requiredTrays, 50);
+
+            // Visa endast antalet tråg
+            const resultElement = document.getElementById("result");
+            resultElement.innerHTML = `Totalt antal tråg som behövs : ${requiredTrays}`;
+            resultElement.classList.add("show-result");
         }
     </script>
 </head>
 <body>
     <div class="container">
-        <h1 class="header">Beräkna antal tråg kvar</h1>
+        <h1 class="header">Beräkna Antal Tråg</h1>
 
         <label for="canSize">Välj burkstorlek:</label>
         <select id="canSize">
             <option value="50cl">50 cl</option>
             <option value="33cl">33 cl</option>
             <option value="sleek">Sleek (33 cl)</option>
-        </select><br><br>
+        </select><br>
 
-        <label for="pallets">Antal pallar:</label>
-        <input type="number" id="pallets" placeholder="Skriv antal pallar"><br><br>
+        <label for="trayType">Välj typ av tråg:</label>
+        <select id="trayType">
+            <option value="24pack">24-pack</option>
+            <option value="20pack">20-pack</option>
+        </select><br>
 
-        <button onclick="calculateTrays()">Beräkna</button>
+        <label for="fillLevel">Fyllnadsgrad på ackumuleringsbordet:</label>
+        <select id="fillLevel">
+            <option value="20%">20% fyllt</option>
+            <option value="50%">50% fyllt</option>
+            <option value="100%">100% fyllt</option>
+        </select><br>
+
+        <label>Antal pallar:</label>
+        <div class="pallet-buttons">
+            <button onclick="setPallets(1)">1 pall</button>
+            <button onclick="setPallets(2)">2 pallar</button>
+        </div>
+        <p id="selected-pallets">Valda pallar: 1</p>
+
+        <button class="calculate" onclick="calculateTrays()">Beräkna</button>
 
         <h2>Resultat:</h2>
         <div id="result" class="response"></div>
